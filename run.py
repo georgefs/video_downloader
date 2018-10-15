@@ -6,10 +6,11 @@ import os
 
 STATIC='static'
 
-def url_hash(url, duration):
+def url_hash(url, duration, cache_key):
     m = hashlib.md5()
     m.update(url.encode('utf-8'))
     m.update(duration.encode('utf-8'))
+    m.update(cache_key.encode('utf-8'))
     return m.hexdigest()
 
 
@@ -25,6 +26,7 @@ def to_static_url(filename):
 def hls_to_mp4():
     m3u8_url = request.query.get('m3u8_url')
     duration = request.query.get('duration', '')
+    cache_key = request.query.get('cache_key', '')
 
     if not duration:
         st = 0
@@ -38,7 +40,7 @@ def hls_to_mp4():
             t = float(ed) - st
 
 
-    mp4_file = os.path.join(STATIC, url_hash(m3u8_url, duration) + ".mp4")
+    mp4_file = os.path.join(STATIC, url_hash(m3u8_url, duration, cache_key) + ".mp4")
 
     if check_file(mp4_file):
         return redirect(to_static_url(mp4_file))
